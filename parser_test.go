@@ -16,37 +16,37 @@ func TestParser(t *testing.T) {
 		{
 			name:    "文字列",
 			input:   "\"test\"",
-			want:    "test",
+			want:    Value{VString, "test"},
 			wantErr: false,
 		},
 		{
 			name:    "数値:123",
 			input:   "123",
-			want:    float64(123),
+			want:    Value{VNumber, float64(123)},
 			wantErr: false,
 		},
 		{
 			name:    "数値:123.456",
 			input:   "123.456",
-			want:    float64(123.456),
+			want:    Value{VNumber, float64(123.456)},
 			wantErr: false,
 		},
 		{
 			name:    "数値:123.456e+1",
 			input:   "123.456e+1",
-			want:    float64(123.456e+1),
+			want:    Value{VNumber, float64(123.456e+1)},
 			wantErr: false,
 		},
 		{
 			name:    "真偽値:true",
 			input:   "true",
-			want:    true,
+			want:    Value{VBoolean, true},
 			wantErr: false,
 		},
 		{
 			name:    "null",
 			input:   "null",
-			want:    nil,
+			want:    Value{VNull, nil},
 			wantErr: false,
 		},
 		{
@@ -57,31 +57,42 @@ func TestParser(t *testing.T) {
 		{
 			name:    "empty object",
 			input:   "{}",
-			want:    map[string]any{},
+			want:    Value{VObject, map[string]Value{}},
 			wantErr: false,
 		},
 		{
 			name:  "object",
 			input: `{"test1": "value", "test2":	123.456, "test3": {"test4": null}}`,
-			want: map[string]any{
-				"test1": "value",
-				"test2": float64(123.456),
-				"test3": map[string]any{
-					"test4": nil,
-				},
-			},
+			want: Value{VObject, map[string]Value{
+				"test1": {VString, "value"},
+				"test2": {VNumber, float64(123.456)},
+				"test3": {VObject, map[string]Value{
+					"test4": {VNull, nil},
+				}},
+			}},
 			wantErr: false,
 		},
 		{
 			name:    "empty array",
 			input:   `[]`,
-			want:    []any{},
+			want:    Value{VArray, []Value{}},
 			wantErr: false,
 		},
 		{
-			name:    "array",
-			input:   `["1", 123, [null, 123.456]]`,
-			want:    []any{"1", float64(123), []any{nil, float64(123.456)}},
+			name:  "array",
+			input: `["1", 123, [null, 123.456]]`,
+			want: Value{VArray,
+				[]Value{
+					{VString, "1"},
+					{VNumber, float64(123)},
+					{VArray,
+						[]Value{
+							{VNull, nil},
+							{VNumber, float64(123.456)},
+						},
+					},
+				},
+			},
 			wantErr: false,
 		},
 	}

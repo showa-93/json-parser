@@ -35,105 +35,105 @@ func NewParser(l *Lexer) *Parser {
 	return p
 }
 
-func (p *Parser) Parse() (any, error) {
+func (p *Parser) Parse() (Value, error) {
 	switch p.curToken.Type {
 	case TLBrace:
 		return p.parseObject()
 	case TLBracket:
 		return p.parseArray()
 	case TString:
-		return p.curToken.Literal, nil
+		return Value{VString, p.curToken.Literal}, nil
 	case TNumber:
 		v, _ := strconv.ParseFloat(p.curToken.Literal, 64)
-		return v, nil
+		return Value{VNumber, v}, nil
 	case TBoolean:
 		v, _ := strconv.ParseBool(p.curToken.Literal)
-		return v, nil
+		return Value{VBoolean, v}, nil
 	case TNull:
-		return nil, nil
+		return Value{VNull, nil}, nil
 	default:
-		return nil, NewParserError("token must start { or [ or string or number or boolean or null")
+		return Value{}, NewParserError("token must start { or [ or string or number or boolean or null")
 	}
 }
 
-func (p *Parser) parseObject() (any, error) {
+func (p *Parser) parseObject() (Value, error) {
 	if err := p.nextToken(); err != nil {
-		return nil, err
+		return Value{}, err
 	}
 	if p.curTokenIs(TRBrace) {
-		return make(map[string]any), nil
+		return Value{VObject, make(map[string]Value)}, nil
 	}
 
-	v := make(map[string]any)
+	v := make(map[string]Value)
 	for {
 		// トークンが "key:" の並びになっていることを確認
 		if !p.curTokenIs(TString) {
-			return nil, NewParserError("key expected string token")
+			return Value{}, NewParserError("key expected string token")
 		}
 		key := p.curToken.Literal
 		if err := p.nextToken(); err != nil {
-			return nil, err
+			return Value{}, err
 		}
 		if !p.curTokenIs(TColon) {
-			return nil, NewParserError("expected colon token after key")
+			return Value{}, NewParserError("expected colon token after key")
 		}
 		if err := p.nextToken(); err != nil {
-			return nil, err
+			return Value{}, err
 		}
 
 		// valueをパースする
 		value, err := p.Parse()
 		if err != nil {
-			return nil, err
+			return Value{}, err
 		}
 
 		v[key] = value
 
 		// , か }であることを確認する
 		if err := p.nextToken(); err != nil {
-			return nil, err
+			return Value{}, err
 		}
 		if p.curTokenIs(TRBrace) {
-			return v, nil
+			return Value{VObject, v}, nil
 		}
 		if !p.curTokenIs(TComma) {
-			return nil, NewParserError("expected comma or } in object")
+			return Value{}, NewParserError("expected comma or } in object")
 		}
 		if err := p.nextToken(); err != nil {
-			return nil, err
+			return Value{}, err
 		}
 	}
 }
 
-func (p *Parser) parseArray() (any, error) {
+func (p *Parser) parseArray() (Value, error) {
 	if err := p.nextToken(); err != nil {
-		return nil, err
+		return Value{}, err
 	}
 	if p.curTokenIs(TRBracket) {
-		return make([]any, 0), nil
+		return Value{VArray, make([]Value, 0)}, nil
 	}
 
-	values := make([]any, 0)
+	values := make([]Value, 0)
 	for {
 		value, err := p.Parse()
 		if err != nil {
-			return nil, err
+			return Value{}, err
 		}
 
 		values = append(values, value)
 		if err := p.nextToken(); err != nil {
-			return nil, err
+			return Value{}, err
 		}
 
 		if p.curTokenIs(TRBracket) {
-			return values, nil
+			return Value{VArray, values}, nil
 		}
 		if !p.curTokenIs(TComma) {
-			return nil, NewParserError("expected comma or ] in array")
+			return Value{}, NewParserError("expected comma or ] in array")
 		}
 
 		if err := p.nextToken(); err != nil {
-			return nil, err
+			return Value{}, err
 		}
 	}
 }
