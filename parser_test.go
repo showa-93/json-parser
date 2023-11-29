@@ -99,7 +99,7 @@ func TestParser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := NewLexer(strings.NewReader(tt.input))
+			l, _ := NewLexer(strings.NewReader(tt.input))
 			p := NewParser(l)
 			got, err := p.Parse()
 			if err != nil {

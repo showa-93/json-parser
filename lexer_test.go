@@ -47,7 +47,7 @@ func TestNextToken(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := NewLexer(strings.NewReader(tt.input))
+			l, _ := NewLexer(strings.NewReader(tt.input))
 			gots := make([]Token, 0, len(tt.want))
 			for {
 				got, err := l.NextToken()
@@ -100,7 +100,7 @@ func TestReadString(t *testing.T) {
 	}
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			l := NewLexer(strings.NewReader(tt.input))
+			l, _ := NewLexer(strings.NewReader(tt.input))
 			l.readChar()
 			got, err := l.readString()
 			if err != nil {
@@ -129,7 +129,7 @@ func TestReadNull(t *testing.T) {
 	}
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			l := NewLexer(strings.NewReader(tt.input))
+			l, _ := NewLexer(strings.NewReader(tt.input))
 			l.readChar()
 			got, err := l.readNull()
 			if err != nil {
@@ -161,7 +161,7 @@ func TestReadBoolean(t *testing.T) {
 	}
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			l := NewLexer(strings.NewReader(tt.input))
+			l, _ := NewLexer(strings.NewReader(tt.input))
 			l.readChar()
 			got, err := l.readBoolean(tt.target)
 			if err != nil {
@@ -199,7 +199,7 @@ func TestReadNumber(t *testing.T) {
 	}
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			l := NewLexer(strings.NewReader(tt.input))
+			l, _ := NewLexer(strings.NewReader(tt.input))
 			ch, err := l.readChar()
 			if err != nil {
 				t.Fatal(err)

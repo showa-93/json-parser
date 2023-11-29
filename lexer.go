@@ -27,13 +27,15 @@ type Lexer struct {
 	eof  bool
 }
 
-func NewLexer(reader io.Reader) *Lexer {
+func NewLexer(reader io.Reader) (*Lexer, error) {
 	l := &Lexer{
 		r: reader,
 	}
-	l.readChar()
+	if _, err := l.readChar(); err != nil {
+		return nil, err
+	}
 
-	return l
+	return l, nil
 }
 
 func (l *Lexer) NextToken() (Token, error) {
